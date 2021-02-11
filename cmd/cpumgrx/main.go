@@ -42,7 +42,6 @@ func main() {
 	// Add flags registered by imported packages
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
-	var podSpecPath string
 	var policyName string
 	var rawHint string
 	var rawReservedCPUs string
@@ -51,15 +50,16 @@ func main() {
 	pflag.StringVarP(&rawHint, "hint", "H", "", "set topology manager hint")
 	pflag.StringVarP(&machineInfoPath, "machine-info", "M", "", "machine info path")
 	pflag.StringVarP(&policyName, "policy", "P", "static", "set CPU manager Policy")
-	pflag.StringVarP(&podSpecPath, "pod-spec", "p", "", "pod spec path")
 	pflag.Parse()
+
+	podSpecPaths := pflag.Args()
 
 	if machineInfoPath == "" {
 		klog.Errorf("missing machine info JSON path")
 		os.Exit(1)
 	}
-	if podSpecPath == "" {
-		klog.Errorf("missing pod spec path")
+	if len(podSpecPaths) == 0 {
+		klog.Errorf("missing pod spec path(s)")
 		os.Exit(1)
 	}
 
@@ -80,15 +80,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	pod := readPodSpecOrDie(podSpecPath)
-
-	cpus, err := mgrx.Run(pod)
-	if err != nil {
-		klog.Errorf("cpumanager allocation failed: %v", err)
-		os.Exit(1)
+	for _, podSpecPath := range podSpecPaths {
+		pod := readPodSpecOrDie(podSpecPath)
+		cpus, err := mgrx.Run(pod)
+		if err != nil {
+			klog.Errorf("cpumanager allocation failed: %v", err)
+			continue
+		}
+		fmt.Printf("%s\n", cpus.String())
 	}
-
-	fmt.Printf("%s\n", cpus.String())
 }
 
 func parseHintOrDie(rawHint string) topologymanager.TopologyHint {
