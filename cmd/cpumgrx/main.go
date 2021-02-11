@@ -27,6 +27,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpuset"
 	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager"
@@ -34,8 +35,6 @@ import (
 	"github.com/fromanirh/cpumgrx/pkg/cpumgrx"
 	"github.com/fromanirh/cpumgrx/pkg/tmutils"
 )
-
-//	MachineInfo    *cadvisorapi.MachineInfo
 
 func main() {
 	// Add klog flags
@@ -51,16 +50,28 @@ func main() {
 	pflag.StringVarP(&rawReservedCPUs, "reserved-cpus", "R", "0", "set reserved CPUs")
 	pflag.StringVarP(&rawHint, "hint", "H", "", "set topology manager hint")
 	pflag.StringVarP(&machineInfoPath, "machine-info", "M", "", "machine info path")
-	pflag.StringVarP(&policyName, "policy", "P", "none", "set CPU manager Policy")
+	pflag.StringVarP(&policyName, "policy", "P", "static", "set CPU manager Policy")
 	pflag.StringVarP(&podSpecPath, "pod-spec", "p", "", "pod spec path")
 	pflag.Parse()
+
+	if machineInfoPath == "" {
+		klog.Errorf("missing machine info JSON path")
+		os.Exit(1)
+	}
+	if podSpecPath == "" {
+		klog.Errorf("missing pod spec path")
+		os.Exit(1)
+	}
 
 	reservedCPUSet := parseReservedCPUsOrDie(rawReservedCPUs)
 	params := cpumgrx.Params{
 		PolicyName:     policyName,
-		Hint:           parseHintOrDie(rawHint),
 		ReservedCPUSet: reservedCPUSet,
 		ReservedCPUQty: resource.MustParse(fmt.Sprintf("%d", reservedCPUSet.Size())),
+		MachineInfo:    readMachineInfoOrDie(machineInfoPath),
+	}
+	if rawHint != "" {
+		params.Hint = parseHintOrDie(rawHint)
 	}
 
 	mgrx, err := cpumgrx.NewFromParams(params)
@@ -128,6 +139,7 @@ func readMachineInfoOrDie(machineInfoPath string) *cadvisorapi.MachineInfo {
 
 func readPodSpecOrDie(podSpecPath string) *v1.Pod {
 	var pod v1.Pod
+
 	src, err := os.Open(podSpecPath)
 	if err != nil {
 		klog.Errorf("error opening %q: %v", podSpecPath, err)
@@ -135,7 +147,7 @@ func readPodSpecOrDie(podSpecPath string) *v1.Pod {
 	}
 	defer src.Close()
 
-	dec := json.NewDecoder(src)
+	dec := k8syaml.NewYAMLOrJSONDecoder(src, 1024)
 	if err := dec.Decode(&pod); err != nil {
 		klog.Errorf("error decoding %q: %v", podSpecPath, err)
 		os.Exit(1)

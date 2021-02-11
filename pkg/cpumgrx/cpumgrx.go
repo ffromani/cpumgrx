@@ -124,6 +124,7 @@ func NewFromParams(params Params) (*CpuMgrx, error) {
 	fakeTm := fakeTMStore{
 		Hint: params.Hint,
 	}
+
 	mgr, err := cpumanager.NewManager(params.PolicyName, reconcilePeriod, params.MachineInfo, params.ReservedCPUSet, nodeAllocatableReservation, stateFileDirectory, fakeTm)
 	if err != nil {
 		return nil, err
