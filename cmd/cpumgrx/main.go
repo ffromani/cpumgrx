@@ -66,15 +66,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	reservedCPUSet := parseReservedCPUsOrDie(rawReservedCPUs)
+	reservedCPUSet := mustParseReservedCPUs(rawReservedCPUs)
 	params := cpumgrx.Params{
 		PolicyName:     policyName,
 		ReservedCPUSet: reservedCPUSet,
 		ReservedCPUQty: resource.MustParse(fmt.Sprintf("%d", reservedCPUSet.Size())),
-		MachineInfo:    readMachineInfoOrDie(machineInfoPath),
+		MachineInfo:    mustReadMachineInfo(machineInfoPath),
 	}
 	if rawHint != "" {
-		params.Hint = parseHintOrDie(rawHint)
+		params.Hint = mustParseHint(rawHint)
 	}
 
 	mgrx, err := cpumgrx.NewFromParams(params)
@@ -102,7 +102,7 @@ func main() {
 	} else {
 		podSpecPaths := args
 		for _, podSpecPath := range podSpecPaths {
-			pod := readPodSpecOrDie(podSpecPath)
+			pod := mustReadPodSpec(podSpecPath)
 
 			if blob, err := json.Marshal(pod); err == nil {
 				klog.V(5).Infof("handling pod: %s", string(blob))
@@ -167,7 +167,7 @@ func makePod(cpuReq cpuReqSpec) *v1.Pod {
 	return &pod
 }
 
-func parseHintOrDie(rawHint string) topologymanager.TopologyHint {
+func mustParseHint(rawHint string) topologymanager.TopologyHint {
 	hints, err := tmutils.ParseGOHints([]string{rawHint})
 	if err != nil {
 		klog.Errorf("error parsing hint: %v", err)
@@ -186,7 +186,7 @@ func parseHintOrDie(rawHint string) topologymanager.TopologyHint {
 	return topologymanager.TopologyHint{}
 }
 
-func parseReservedCPUsOrDie(rawReservedCPUs string) cpuset.CPUSet {
+func mustParseReservedCPUs(rawReservedCPUs string) cpuset.CPUSet {
 	reservedCPUs, err := cpuset.Parse(rawReservedCPUs)
 	if err != nil {
 		klog.Errorf("bad format for reserved CPU set: %v", err)
@@ -195,7 +195,7 @@ func parseReservedCPUsOrDie(rawReservedCPUs string) cpuset.CPUSet {
 	return reservedCPUs
 }
 
-func readMachineInfoOrDie(machineInfoPath string) *cadvisorapi.MachineInfo {
+func mustReadMachineInfo(machineInfoPath string) *cadvisorapi.MachineInfo {
 	var machineInfo cadvisorapi.MachineInfo
 	src, err := os.Open(machineInfoPath)
 	if err != nil {
@@ -213,7 +213,7 @@ func readMachineInfoOrDie(machineInfoPath string) *cadvisorapi.MachineInfo {
 	return &machineInfo
 }
 
-func readPodSpecOrDie(podSpecPath string) *v1.Pod {
+func mustReadPodSpec(podSpecPath string) *v1.Pod {
 	var pod v1.Pod
 
 	src, err := os.Open(podSpecPath)
