@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"flag"
@@ -48,11 +49,15 @@ func main() {
 	var rawReservedCPUs string
 	var machineInfoPath string
 	var podTemplateMode bool
+	var keepState bool
+	var stateFileDirectory string
 	pflag.StringVarP(&rawReservedCPUs, "reserved-cpus", "R", "0", "set reserved CPUs")
 	pflag.StringVarP(&rawHint, "hint", "H", "", "set topology manager hint")
 	pflag.StringVarP(&machineInfoPath, "machine-info", "M", "", "machine info path")
 	pflag.BoolVarP(&podTemplateMode, "pod-template-mode", "T", false, "pod template mode")
 	pflag.StringVarP(&policyName, "policy", "P", "static", "set CPU manager Policy")
+	pflag.BoolVarP(&keepState, "keep-state", "k", false, "keep the cpu_manager_state file")
+	pflag.StringVarP(&stateFileDirectory, "state-dir", "s", ".", "directory to store the cpu_manager_state_file")
 	pflag.Parse()
 
 	args := pflag.Args()
@@ -68,13 +73,28 @@ func main() {
 
 	reservedCPUSet := mustParseReservedCPUs(rawReservedCPUs)
 	params := cpumgrx.Params{
-		PolicyName:     policyName,
-		ReservedCPUSet: reservedCPUSet,
-		ReservedCPUQty: resource.MustParse(fmt.Sprintf("%d", reservedCPUSet.Size())),
-		MachineInfo:    mustReadMachineInfo(machineInfoPath),
+		PolicyName:         policyName,
+		StateFileDirectory: stateFileDirectory,
+		ReservedCPUSet:     reservedCPUSet,
+		ReservedCPUQty:     resource.MustParse(fmt.Sprintf("%d", reservedCPUSet.Size())),
+		MachineInfo:        mustReadMachineInfo(machineInfoPath),
 	}
 	if rawHint != "" {
 		params.Hint = mustParseHint(rawHint)
+	}
+
+	var pods []*v1.Pod
+
+	if podTemplateMode {
+		cpuReqs := parseCpuReqs(args)
+		for _, cpuReq := range cpuReqs {
+			pods = append(pods, makePod(cpuReq))
+		}
+	} else {
+		podSpecPaths := args
+		for _, podSpecPath := range podSpecPaths {
+			pods = append(pods, mustReadPodSpec(podSpecPath))
+		}
 	}
 
 	mgrx, err := cpumgrx.NewFromParams(params)
@@ -83,38 +103,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	if podTemplateMode {
-		cpuReqs := parseCpuReqs(args)
-		for _, cpuReq := range cpuReqs {
-			pod := makePod(cpuReq)
-
-			if blob, err := json.Marshal(pod); err == nil {
-				klog.V(5).Infof("handling pod: %s", string(blob))
-			}
-
-			cpus, err := mgrx.Run(pod)
-			if err != nil {
-				klog.Errorf("cpumanager allocation failed: %v", err)
-				continue
-			}
-			fmt.Printf("%s\n", cpus.String())
+	defer func() {
+		if keepState {
+			return
 		}
-	} else {
-		podSpecPaths := args
-		for _, podSpecPath := range podSpecPaths {
-			pod := mustReadPodSpec(podSpecPath)
-
-			if blob, err := json.Marshal(pod); err == nil {
-				klog.V(5).Infof("handling pod: %s", string(blob))
-			}
-
-			cpus, err := mgrx.Run(pod)
-			if err != nil {
-				klog.Errorf("cpumanager allocation failed: %v", err)
-				continue
-			}
-			fmt.Printf("%s\n", cpus.String())
+		fullPath := filepath.Join(stateFileDirectory, "cpu_manager_state")
+		klog.V(3).Infof("removing cpu_manager_state file on %q", fullPath)
+		err := os.Remove(fullPath)
+		if err != nil {
+			klog.Warning("error removing %q: %v", fullPath, err)
 		}
+	}()
+
+	for _, pod := range pods {
+		if blob, err := json.Marshal(pod); err == nil {
+			klog.V(5).Infof("handling pod: %s", string(blob))
+		}
+
+		cpus, err := mgrx.Run(pod)
+		if err != nil {
+			klog.Errorf("cpumanager allocation failed: %v", err)
+			continue
+		}
+		fmt.Printf("%s\n", cpus.String())
 	}
 }
 

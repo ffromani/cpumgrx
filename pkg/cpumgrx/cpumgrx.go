@@ -38,11 +38,12 @@ const (
 )
 
 type Params struct {
-	PolicyName     string
-	Hint           topologymanager.TopologyHint
-	MachineInfo    *cadvisorapi.MachineInfo
-	ReservedCPUQty resource.Quantity
-	ReservedCPUSet cpuset.CPUSet
+	PolicyName         string
+	Hint               topologymanager.TopologyHint
+	MachineInfo        *cadvisorapi.MachineInfo
+	ReservedCPUQty     resource.Quantity
+	ReservedCPUSet     cpuset.CPUSet
+	StateFileDirectory string
 }
 
 func fakeActivePods() []*v1.Pod {
@@ -117,7 +118,6 @@ func (cmx *CpuMgrx) Run(pod *v1.Pod) (cpuset.CPUSet, error) {
 }
 
 func NewFromParams(params Params) (*CpuMgrx, error) {
-	stateFileDirectory := "." //XXX: WARNING!
 	nodeAllocatableReservation := v1.ResourceList{
 		v1.ResourceCPU: params.ReservedCPUQty,
 	}
@@ -125,7 +125,7 @@ func NewFromParams(params Params) (*CpuMgrx, error) {
 		Hint: params.Hint,
 	}
 
-	mgr, err := cpumanager.NewManager(params.PolicyName, reconcilePeriod, params.MachineInfo, params.ReservedCPUSet, nodeAllocatableReservation, stateFileDirectory, fakeTm)
+	mgr, err := cpumanager.NewManager(params.PolicyName, reconcilePeriod, params.MachineInfo, params.ReservedCPUSet, nodeAllocatableReservation, params.StateFileDirectory, fakeTm)
 	if err != nil {
 		return nil, err
 	}
