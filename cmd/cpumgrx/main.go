@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 
 	"flag"
 	cadvisorapi "github.com/google/cadvisor/info/v1"
@@ -46,20 +47,22 @@ func main() {
 	var rawHint string
 	var rawReservedCPUs string
 	var machineInfoPath string
+	var podTemplateMode bool
 	pflag.StringVarP(&rawReservedCPUs, "reserved-cpus", "R", "0", "set reserved CPUs")
 	pflag.StringVarP(&rawHint, "hint", "H", "", "set topology manager hint")
 	pflag.StringVarP(&machineInfoPath, "machine-info", "M", "", "machine info path")
+	pflag.BoolVarP(&podTemplateMode, "pod-template-mode", "T", false, "pod template mode")
 	pflag.StringVarP(&policyName, "policy", "P", "static", "set CPU manager Policy")
 	pflag.Parse()
 
-	podSpecPaths := pflag.Args()
+	args := pflag.Args()
 
 	if machineInfoPath == "" {
 		klog.Errorf("missing machine info JSON path")
 		os.Exit(1)
 	}
-	if len(podSpecPaths) == 0 {
-		klog.Errorf("missing pod spec path(s)")
+	if len(args) == 0 {
+		klog.Errorf("missing args")
 		os.Exit(1)
 	}
 
@@ -80,15 +83,88 @@ func main() {
 		os.Exit(1)
 	}
 
-	for _, podSpecPath := range podSpecPaths {
-		pod := readPodSpecOrDie(podSpecPath)
-		cpus, err := mgrx.Run(pod)
-		if err != nil {
-			klog.Errorf("cpumanager allocation failed: %v", err)
+	if podTemplateMode {
+		cpuReqs := parseCpuReqs(args)
+		for _, cpuReq := range cpuReqs {
+			pod := makePod(cpuReq)
+
+			if blob, err := json.Marshal(pod); err == nil {
+				klog.V(5).Infof("handling pod: %s", string(blob))
+			}
+
+			cpus, err := mgrx.Run(pod)
+			if err != nil {
+				klog.Errorf("cpumanager allocation failed: %v", err)
+				continue
+			}
+			fmt.Printf("%s\n", cpus.String())
+		}
+	} else {
+		podSpecPaths := args
+		for _, podSpecPath := range podSpecPaths {
+			pod := readPodSpecOrDie(podSpecPath)
+
+			if blob, err := json.Marshal(pod); err == nil {
+				klog.V(5).Infof("handling pod: %s", string(blob))
+			}
+
+			cpus, err := mgrx.Run(pod)
+			if err != nil {
+				klog.Errorf("cpumanager allocation failed: %v", err)
+				continue
+			}
+			fmt.Printf("%s\n", cpus.String())
+		}
+	}
+}
+
+type cpuReqSpec struct {
+	Name     string
+	Limits   resource.Quantity
+	Requests resource.Quantity
+}
+
+// name=request/limit
+func parseCpuReqs(args []string) []cpuReqSpec {
+	var reqsRE = regexp.MustCompile(`^(\S*)=(\S*)/(\S*)$`)
+	var cpuReqs []cpuReqSpec
+	for _, arg := range args {
+		items := reqsRE.FindAllStringSubmatch(arg, -1)
+		// items[0] is the full match
+		if items == nil || len(items[0]) != 4 {
+			klog.Warningf("cannot parse cpu req spec %q - skipped", arg)
 			continue
 		}
-		fmt.Printf("%s\n", cpus.String())
+		cpuReqs = append(cpuReqs, cpuReqSpec{
+			Name:     items[0][1],
+			Limits:   resource.MustParse(items[0][2]),
+			Requests: resource.MustParse(items[0][3]),
+		})
 	}
+	return cpuReqs
+}
+
+func makePod(cpuReq cpuReqSpec) *v1.Pod {
+	pod := v1.Pod{
+		Spec: v1.PodSpec{
+			Containers: []v1.Container{
+				v1.Container{
+					Resources: v1.ResourceRequirements{
+						Limits:   make(v1.ResourceList),
+						Requests: make(v1.ResourceList),
+					},
+				},
+			},
+		},
+	}
+	// yep, that's the lazy way
+	pod.Name = fmt.Sprintf("%s-pod", cpuReq.Name)
+	pod.Spec.Containers[0].Name = fmt.Sprintf("%s-cnt", cpuReq.Name)
+	pod.Spec.Containers[0].Resources.Requests[v1.ResourceCPU] = cpuReq.Requests
+	pod.Spec.Containers[0].Resources.Limits[v1.ResourceCPU] = cpuReq.Limits
+	pod.Spec.Containers[0].Resources.Requests[v1.ResourceMemory] = resource.MustParse("1Gi")
+	pod.Spec.Containers[0].Resources.Limits[v1.ResourceMemory] = resource.MustParse("1Gi")
+	return &pod
 }
 
 func parseHintOrDie(rawHint string) topologymanager.TopologyHint {
