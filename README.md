@@ -81,6 +81,12 @@ I0212 12:31:33.890877   43643 state_mem.go:80] [cpumanager] updated desired cpus
 
 The format is `name=REQUEST/LIMIT`. You can use any valid format (see kubernetes' docs) for the resource spec.
 
+## Obtaining machineinfos
+
+1. [run cadvisor](https://github.com/google/cadvisor#quick-start-running-cadvisor-in-a-docker-container) on the box you want to collect the machineinfo for.
+2. query the cadvisor API: `curl -L 127.0.0.1:8080/api/v1.3/machine > machineinfo.json`
+3. feed the collected `machineinfo.json` into `cpumgrx`: `$ cpumgrx -M machineinfo.json -R 0,1 -T 'test1=1/1'`
+
 ## license
 (C) 2021 Red Hat Inc and licensed under the Apache License v2
 
