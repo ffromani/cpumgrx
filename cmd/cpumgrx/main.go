@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"flag"
 	cadvisorapi "github.com/google/cadvisor/info/v1"
@@ -31,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/klog/v2"
+	"k8s.io/kubernetes/pkg/kubelet/cm/cpumanager/topology"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpuset"
 	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager"
 
@@ -97,6 +99,14 @@ func main() {
 		}
 	}
 
+	topo, err := topology.Discover(params.MachineInfo)
+	if err != nil {
+		klog.Errorf("topology discovery failed: %v", err)
+		os.Exit(1)
+	}
+
+	cpuDetails := CPUDetails{topo.CPUDetails}
+
 	mgrx, err := cpumgrx.NewFromParams(params)
 	if err != nil {
 		klog.Errorf("cpumanager creation failed: %v", err)
@@ -115,9 +125,13 @@ func main() {
 		}
 	}()
 
+	// coreID -> virtual cores (threads) per physical core
+	coreInfo := make(map[int]cpuset.CPUSet)
+	// coreID -> pod names allowed to run on that core
+	coreTenants := make(map[int][]string)
 	for _, pod := range pods {
 		if blob, err := json.Marshal(pod); err == nil {
-			klog.V(5).Infof("handling pod: %s", string(blob))
+			klog.V(4).Infof("handling pod: %s", string(blob))
 		}
 
 		cpus, err := mgrx.Run(pod)
@@ -125,7 +139,68 @@ func main() {
 			klog.Errorf("cpumanager allocation failed: %v", err)
 			continue
 		}
-		fmt.Printf("%s\n", cpus.String())
+		podCoreInfo := partitionCPUsByCore(cpus, cpuDetails)
+		for coreID, cs := range podCoreInfo {
+			// TODO: explain overwrite
+			coreInfo[coreID] = cs
+			coreTenants[coreID] = append(coreTenants[coreID], pod.Name)
+		}
+
+		printCPUs(pod.Name, cpus, podCoreInfo)
+	}
+
+	printCoreTenants(coreTenants)
+}
+
+type CPUDetails struct {
+	d topology.CPUDetails
+}
+
+func (d CPUDetails) CoreSiblings(id int) (int, cpuset.CPUSet) {
+	if info, ok := d.d[id]; ok {
+		return info.CoreID, d.d.CPUsInCores(info.CoreID)
+	}
+	return -1, cpuset.CPUSet{}
+}
+
+func peek(cpus cpuset.CPUSet) (int, bool) {
+	if cpus.Size() == 0 {
+		return -1, false
+	}
+	return cpus.ToSliceNoSort()[0], true
+}
+
+func partitionCPUsByCore(cpus cpuset.CPUSet, cpuDetails CPUDetails) map[int]cpuset.CPUSet {
+	res := make(map[int]cpuset.CPUSet)
+	for cpus.Size() > 0 {
+		cpuID, ok := peek(cpus)
+		if !ok {
+			break // how come?
+		}
+		coreID, cs := cpuDetails.CoreSiblings(cpuID)
+		res[coreID] = cs
+		cpus = cpus.Difference(cs)
+	}
+	return res
+}
+
+func printCPUs(podName string, cpus cpuset.CPUSet, coreInfo map[int]cpuset.CPUSet) {
+	b := &strings.Builder{}
+	fmt.Fprintf(b, "%s: %s -> [ ", podName, cpus.String())
+	for coreID, cs := range coreInfo {
+		fmt.Fprintf(b, "%d=[%s] ", coreID, cs.String())
+	}
+	fmt.Fprintf(b, "]")
+	fmt.Printf("%s\n", b.String())
+}
+
+func printCoreTenants(coreTenants map[int][]string) {
+	for coreID, podNames := range coreTenants {
+		mark := ""
+		if len(podNames) > 1 {
+			mark = " <---"
+		}
+		fmt.Printf("%02d -> %v%s\n", coreID, podNames, mark)
 	}
 }
 
