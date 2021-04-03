@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"flag"
@@ -200,7 +201,13 @@ func printCPUs(podName string, cpus cpuset.CPUSet, coreInfo map[int]cpuset.CPUSe
 }
 
 func printCoreTenants(coreTenants map[int][]string) {
-	for coreID, podNames := range coreTenants {
+	var coreIDs []int
+	for coreID := range coreTenants {
+		coreIDs = append(coreIDs, coreID)
+	}
+	sort.Ints(coreIDs)
+	for _, coreID := range coreIDs {
+		podNames := coreTenants[coreID]
 		mark := ""
 		if len(podNames) > 1 {
 			mark = " <---"
