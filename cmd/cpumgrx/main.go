@@ -129,6 +129,11 @@ func main() {
 	coreInfo := make(map[int]cpuset.CPUSet)
 	// coreID -> pod names allowed to run on that core
 	coreTenants := make(map[int][]string)
+	for _, cpuID := range reservedCPUSet.ToSlice() {
+		coreID, _ := cpuDetails.CoreSiblings(cpuID)
+		coreTenants[coreID] = []string{"reserved"}
+	}
+
 	for _, pod := range pods {
 		if blob, err := json.Marshal(pod); err == nil {
 			klog.V(4).Infof("handling pod: %s", string(blob))
