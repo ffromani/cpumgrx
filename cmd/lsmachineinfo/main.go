@@ -19,20 +19,19 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/spf13/pflag"
 
 	"k8s.io/klog/v2"
 
-	"github.com/google/cadvisor/fs"
 	infov1 "github.com/google/cadvisor/info/v1"
-	"github.com/google/cadvisor/machine"
-	"github.com/google/cadvisor/utils/sysfs"
+
+	"github.com/fromanirh/cpumgrx/pkg/machineinformer"
 )
 
 func main() {
+	var rootDir string
 	var rawOutput bool
 
 	// Add klog flags
@@ -40,78 +39,21 @@ func main() {
 	// Add flags registered by imported packages
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
+	pflag.StringVarP(&rootDir, "root-dir", "r", "", "use <arg> as root prefix - use this if run inside a container")
 	pflag.BoolVarP(&rawOutput, "raw-output", "R", false, "emit full output - including machine-identifiable parts")
 	pflag.Parse()
 
-	fsInfo := newFakeFsInfo()
-	sysFs := sysfs.NewRealSysFs()
-	inHostNamespace := true
+	var err error
+	var info *infov1.MachineInfo
+	if rawOutput {
+		info, err = machineinformer.GetRaw(rootDir)
+	} else {
+		info, err = machineinformer.Get(rootDir)
+	}
 
-	info, err := machine.Info(sysFs, fsInfo, inHostNamespace)
 	if err != nil {
 		klog.Fatalf("Cannot get machine info: %v")
 	}
 
-	outInfo := info
-	if !rawOutput {
-		outInfo = cleanInfo(info)
-	}
-
-	json.NewEncoder(os.Stdout).Encode(outInfo)
-}
-
-func cleanInfo(in *infov1.MachineInfo) *infov1.MachineInfo {
-	out := in.Clone()
-	out.MachineID = ""
-	out.SystemUUID = ""
-	out.BootID = ""
-	for i := 0; i < len(out.NetworkDevices); i++ {
-		out.NetworkDevices[i].MacAddress = ""
-	}
-	out.CloudProvider = infov1.UnknownProvider
-	out.InstanceType = infov1.UnknownInstance
-	out.InstanceID = infov1.UnNamedInstance
-	return out
-}
-
-type fakeFsInfo struct {
-	notImplemented error
-}
-
-func newFakeFsInfo() fs.FsInfo {
-	return fakeFsInfo{
-		notImplemented: fmt.Errorf("not implemented"),
-	}
-}
-
-func (ffi fakeFsInfo) GetGlobalFsInfo() ([]fs.Fs, error) {
-	return nil, ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetFsInfoForPath(mountSet map[string]struct{}) ([]fs.Fs, error) {
-	return nil, ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetDirUsage(dir string) (fs.UsageInfo, error) {
-	return fs.UsageInfo{}, ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetDeviceInfoByFsUUID(uuid string) (*fs.DeviceInfo, error) {
-	return nil, ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetDirFsDevice(dir string) (*fs.DeviceInfo, error) {
-	return nil, ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetDeviceForLabel(label string) (string, error) {
-	return "", ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetLabelsForDevice(device string) ([]string, error) {
-	return nil, ffi.notImplemented
-}
-
-func (ffi fakeFsInfo) GetMountpointForDevice(device string) (string, error) {
-	return "", ffi.notImplemented
+	json.NewEncoder(os.Stdout).Encode(info)
 }
