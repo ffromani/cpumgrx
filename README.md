@@ -87,6 +87,9 @@ The format is `name=REQUEST/LIMIT`. You can use any valid format (see kubernetes
 2. query the cadvisor API: `curl -L 127.0.0.1:8080/api/v1.3/machine > machineinfo.json`
 3. feed the collected `machineinfo.json` into `cpumgrx`: `$ cpumgrx -M machineinfo.json -R 0,1 -T 'test1=1/1'`
 
+Alternatively:
+1. run `lsmachineinfo > machineinfo.json`
+
 ## license
 (C) 2021 Red Hat Inc and licensed under the Apache License v2
 
