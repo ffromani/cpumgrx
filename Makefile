@@ -1,6 +1,6 @@
 RUNTIME ?= podman
 REPOOWNER ?= fromani
-IMAGENAME ?= numalign
+IMAGENAME ?= cpumgrx
 IMAGETAG ?= latest
 
 all: dist
