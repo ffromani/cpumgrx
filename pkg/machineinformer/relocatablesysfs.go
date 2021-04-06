@@ -13,11 +13,11 @@
 // limitations under the License.
 
 // derived from https://github.com/google/cadvisor/blob/master/utils/sysfs/sysfs.go @ ef7e64f9
+// as Apache 2.0 license allows.
 
 package machineinformer
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -60,9 +60,7 @@ const (
 
 	//HugePagesNrFile name of nr_hugepages file in sysfs
 	HugePagesNrFile = "nr_hugepages"
-)
 
-var (
 	nodeDir = "/sys/devices/system/node/"
 )
 
@@ -395,61 +393,4 @@ func isCPUOnline(path string, cpuID uint16) (bool, error) {
 	}
 
 	return false, nil
-}
-
-// Looks for sysfs cpu path containing given CPU property, e.g. core_id or physical_package_id
-// and returns number of unique values of given property, exemplary usage: getting number of CPU physical cores
-func GetUniqueCPUPropertyCount(cpuBusPath string, propertyName string) int {
-	absCPUBusPath, err := filepath.Abs(cpuBusPath)
-	if err != nil {
-		klog.Errorf("Cannot make %s absolute", cpuBusPath)
-		return 0
-	}
-	pathPattern := absCPUBusPath + "/cpu*[0-9]"
-	sysCPUPaths, err := filepath.Glob(pathPattern)
-	if err != nil {
-		klog.Errorf("Cannot find files matching pattern (pathPattern: %s),  number of unique %s set to 0", pathPattern, propertyName)
-		return 0
-	}
-	onlinePath, err := filepath.Abs(cpuBusPath + "/online")
-	if err != nil {
-		klog.V(1).Infof("Unable to get absolute path for %s", cpuBusPath+"/../online")
-		return 0
-	}
-
-	if err != nil {
-		klog.V(1).Infof("Unable to get online CPUs list: %s", err)
-		return 0
-	}
-	uniques := make(map[string]bool)
-	for _, sysCPUPath := range sysCPUPaths {
-		cpuID, err := getCPUID(sysCPUPath)
-		if err != nil {
-			klog.V(1).Infof("Unable to get CPU ID from path %s: %s", sysCPUPath, err)
-			return 0
-		}
-		isOnline, err := isCPUOnline(onlinePath, cpuID)
-		if err != nil && !os.IsNotExist(err) {
-			klog.V(1).Infof("Unable to determine CPU online state: %s", err)
-			continue
-		}
-		if !isOnline && !os.IsNotExist(err) {
-			continue
-		}
-		propertyPath := filepath.Join(sysCPUPath, sysFsCPUTopology, propertyName)
-		propertyVal, err := ioutil.ReadFile(propertyPath)
-		if err != nil {
-			klog.Warningf("Cannot open %s, assuming 0 for %s of CPU %d", propertyPath, propertyName, cpuID)
-			propertyVal = []byte("0")
-		}
-		packagePath := filepath.Join(sysCPUPath, sysFsCPUTopology, CPUPhysicalPackageID)
-		packageVal, err := ioutil.ReadFile(packagePath)
-		if err != nil {
-			klog.Warningf("Cannot open %s, assuming 0 %s of CPU %d", packagePath, CPUPhysicalPackageID, cpuID)
-			packageVal = []byte("0")
-
-		}
-		uniques[fmt.Sprintf("%s_%s", bytes.TrimSpace(propertyVal), bytes.TrimSpace(packageVal))] = true
-	}
-	return len(uniques)
 }
