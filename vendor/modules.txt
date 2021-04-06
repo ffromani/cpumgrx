@@ -21,6 +21,9 @@ github.com/docker/distribution/reference
 # github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96
 github.com/docker/spdystream
 github.com/docker/spdystream/spdy
+# github.com/fromanirh/cpuset v0.0.1
+## explicit
+github.com/fromanirh/cpuset
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
 # github.com/go-logr/logr v0.4.0

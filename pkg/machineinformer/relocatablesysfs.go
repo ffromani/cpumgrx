@@ -29,6 +29,8 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/google/cadvisor/utils/sysfs"
+
+	"github.com/fromanirh/cpuset"
 )
 
 const (
@@ -345,10 +347,6 @@ func getCPUID(dir string) (uint16, error) {
 	return 0, fmt.Errorf("can't get CPU ID from %s", dir)
 }
 
-// isCPUOnline is copied from github.com/opencontainers/runc/libcontainer/cgroups/fs and modified to suite cAdvisor
-// needs as Apache 2.0 license allows.
-// It parses CPU list (such as: 0,3-5,10) into a struct that allows to determine quickly if CPU or particular ID is online.
-// see: https://github.com/opencontainers/runc/blob/ab27e12cebf148aa5d1ee3ad13d9fc7ae12bf0b6/libcontainer/cgroups/fs/cpuset.go#L45
 func isCPUOnline(path string, cpuID uint16) (bool, error) {
 	fileContent, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -358,39 +356,15 @@ func isCPUOnline(path string, cpuID uint16) (bool, error) {
 		return false, fmt.Errorf("%s found to be empty", path)
 	}
 
-	cpuList := strings.TrimSpace(string(fileContent))
-	for _, s := range strings.Split(cpuList, ",") {
-		splitted := strings.SplitN(s, "-", 3)
-		switch len(splitted) {
-		case 3:
-			return false, fmt.Errorf("invalid values in %s", path)
-		case 2:
-			min, err := strconv.ParseUint(splitted[0], 10, 16)
-			if err != nil {
-				return false, err
-			}
-			max, err := strconv.ParseUint(splitted[1], 10, 16)
-			if err != nil {
-				return false, err
-			}
-			if min > max {
-				return false, fmt.Errorf("invalid values in %s", path)
-			}
-			for i := min; i <= max; i++ {
-				if uint16(i) == cpuID {
-					return true, nil
-				}
-			}
-		case 1:
-			value, err := strconv.ParseUint(s, 10, 16)
-			if err != nil {
-				return false, err
-			}
-			if uint16(value) == cpuID {
-				return true, nil
-			}
-		}
+	cpus, err := cpuset.Parse(strings.TrimSpace(string(fileContent)))
+	if err != nil {
+		return false, err
 	}
 
+	for _, cpu := range cpus {
+		if uint16(cpu) == cpuID {
+			return true, nil
+		}
+	}
 	return false, nil
 }
