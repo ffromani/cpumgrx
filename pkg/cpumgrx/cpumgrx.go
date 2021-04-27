@@ -17,7 +17,6 @@
 package cpumgrx
 
 import (
-	"fmt"
 	"time"
 
 	cadvisorapi "github.com/google/cadvisor/info/v1"
@@ -110,10 +109,7 @@ func (cmx *CpuMgrx) Run(pod *v1.Pod) (cpuset.CPUSet, error) {
 	}
 
 	state := cmx.cpuMgr.State()
-	cpus, ok := state.GetCPUSet(string(pod.UID), cnt.Name)
-	if !ok {
-		return cpuset.CPUSet{}, fmt.Errorf("GetCPUSet returned false")
-	}
+	cpus := state.GetCPUSetOrDefault(string(pod.UID), cnt.Name)
 	return cpus, nil
 }
 
