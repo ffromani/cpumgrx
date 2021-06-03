@@ -77,7 +77,7 @@ func NewRelocatableSysFs(root string) sysfs.SysFs {
 }
 
 func NewRealSysFs(root string) sysfs.SysFs {
-	return NewRelocatableSysFs("")
+	return NewRelocatableSysFs("/")
 }
 
 func (fs *relocatableSysFs) GetNodesPaths() ([]string, error) {
@@ -91,7 +91,10 @@ func (fs *relocatableSysFs) GetCPUsPaths(cpusPath string) ([]string, error) {
 }
 
 func (fs *relocatableSysFs) GetCoreID(cpuPath string) (string, error) {
-	coreIDFilePath := filepath.Join(fs.root, cpuPath, coreIDFilePath)
+	// intentionally not prepending fs.root, because this function
+	// is expected to be used with `cpuPath` as returned by
+	// GetCPUsPaths
+	coreIDFilePath := filepath.Join(cpuPath, coreIDFilePath)
 	coreID, err := ioutil.ReadFile(coreIDFilePath)
 	if err != nil {
 		return "", err
@@ -100,7 +103,10 @@ func (fs *relocatableSysFs) GetCoreID(cpuPath string) (string, error) {
 }
 
 func (fs *relocatableSysFs) GetCPUPhysicalPackageID(cpuPath string) (string, error) {
-	packageIDFilePath := filepath.Join(fs.root, cpuPath, packageIDFilePath)
+	// intentionally not prepending fs.root, because this function
+	// is expected to be used with `cpuPath` as returned by
+	// GetCPUsPaths
+	packageIDFilePath := filepath.Join(cpuPath, packageIDFilePath)
 	packageID, err := ioutil.ReadFile(packageIDFilePath)
 	if err != nil {
 		return "", err
