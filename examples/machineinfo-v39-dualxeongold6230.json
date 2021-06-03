@@ -1,0 +1,1137 @@
+{
+  "timestamp": "2021-06-03T11:01:04.910708721Z",
+  "num_cores": 80,
+  "num_physical_cores": 20,
+  "num_sockets": 2,
+  "cpu_frequency_khz": 3406060,
+  "memory_capacity": 202486267904,
+  "memory_by_type": {
+    "Registered-DDR4": {
+      "capacity": 206158430208,
+      "dimm_count": 12
+    }
+  },
+  "nvm": {
+    "memory_mode_capacity": 0,
+    "app direct_mode_capacity": 0,
+    "avg_power_budget": 0
+  },
+  "hugepages": [
+    {
+      "page_size": 1048576,
+      "num_pages": 0
+    },
+    {
+      "page_size": 2048,
+      "num_pages": 0
+    }
+  ],
+  "machine_id": "",
+  "system_uuid": "",
+  "boot_id": "",
+  "filesystems": null,
+  "disk_map": {
+    "253:0": {
+      "name": "dm-0",
+      "major": 253,
+      "minor": 0,
+      "size": 2198468558848,
+      "scheduler": "none"
+    },
+    "8:0": {
+      "name": "sda",
+      "major": 8,
+      "minor": 0,
+      "size": 3840755982336,
+      "scheduler": "none"
+    },
+    "8:16": {
+      "name": "sdb",
+      "major": 8,
+      "minor": 16,
+      "size": 3840755982336,
+      "scheduler": "none"
+    },
+    "8:32": {
+      "name": "sdc",
+      "major": 8,
+      "minor": 32,
+      "size": 0,
+      "scheduler": "mq-deadline"
+    }
+  },
+  "network_devices": [],
+  "topology": [
+    {
+      "node_id": 0,
+      "memory": 50326683648,
+      "hugepages": [
+        {
+          "page_size": 1048576,
+          "num_pages": 0
+        },
+        {
+          "page_size": 2048,
+          "num_pages": 0
+        }
+      ],
+      "cores": [
+        {
+          "core_id": 0,
+          "thread_ids": [
+            0,
+            40
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 1,
+          "thread_ids": [
+            1,
+            41
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 2,
+          "thread_ids": [
+            2,
+            42
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 8,
+          "thread_ids": [
+            3,
+            43
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 9,
+          "thread_ids": [
+            4,
+            44
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 16,
+          "thread_ids": [
+            45,
+            5
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 17,
+          "thread_ids": [
+            46,
+            6
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 18,
+          "thread_ids": [
+            47,
+            7
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 24,
+          "thread_ids": [
+            48,
+            8
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 25,
+          "thread_ids": [
+            49,
+            9
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        }
+      ],
+      "caches": null
+    },
+    {
+      "node_id": 1,
+      "memory": 50729562112,
+      "hugepages": [
+        {
+          "page_size": 1048576,
+          "num_pages": 0
+        },
+        {
+          "page_size": 2048,
+          "num_pages": 0
+        }
+      ],
+      "cores": [
+        {
+          "core_id": 3,
+          "thread_ids": [
+            10,
+            50
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 4,
+          "thread_ids": [
+            11,
+            51
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 10,
+          "thread_ids": [
+            12,
+            52
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 11,
+          "thread_ids": [
+            13,
+            53
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 12,
+          "thread_ids": [
+            14,
+            54
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 19,
+          "thread_ids": [
+            15,
+            55
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 20,
+          "thread_ids": [
+            16,
+            56
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 26,
+          "thread_ids": [
+            17,
+            57
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 27,
+          "thread_ids": [
+            18,
+            58
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        },
+        {
+          "core_id": 28,
+          "thread_ids": [
+            19,
+            59
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 0
+        }
+      ],
+      "caches": null
+    },
+    {
+      "node_id": 2,
+      "memory": 50729570304,
+      "hugepages": [
+        {
+          "page_size": 1048576,
+          "num_pages": 0
+        },
+        {
+          "page_size": 2048,
+          "num_pages": 0
+        }
+      ],
+      "cores": [
+        {
+          "core_id": 0,
+          "thread_ids": [
+            20,
+            60
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 1,
+          "thread_ids": [
+            21,
+            61
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 2,
+          "thread_ids": [
+            22,
+            62
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 8,
+          "thread_ids": [
+            23,
+            63
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 9,
+          "thread_ids": [
+            24,
+            64
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 16,
+          "thread_ids": [
+            25,
+            65
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 17,
+          "thread_ids": [
+            26,
+            66
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 18,
+          "thread_ids": [
+            27,
+            67
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 24,
+          "thread_ids": [
+            28,
+            68
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 25,
+          "thread_ids": [
+            29,
+            69
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        }
+      ],
+      "caches": null
+    },
+    {
+      "node_id": 3,
+      "memory": 50700451840,
+      "hugepages": [
+        {
+          "page_size": 1048576,
+          "num_pages": 0
+        },
+        {
+          "page_size": 2048,
+          "num_pages": 0
+        }
+      ],
+      "cores": [
+        {
+          "core_id": 3,
+          "thread_ids": [
+            30,
+            70
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 4,
+          "thread_ids": [
+            31,
+            71
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 10,
+          "thread_ids": [
+            32,
+            72
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 11,
+          "thread_ids": [
+            33,
+            73
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 12,
+          "thread_ids": [
+            34,
+            74
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 19,
+          "thread_ids": [
+            35,
+            75
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 20,
+          "thread_ids": [
+            36,
+            76
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 26,
+          "thread_ids": [
+            37,
+            77
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 27,
+          "thread_ids": [
+            38,
+            78
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        },
+        {
+          "core_id": 28,
+          "thread_ids": [
+            39,
+            79
+          ],
+          "caches": [
+            {
+              "size": 32768,
+              "type": "Data",
+              "level": 1
+            },
+            {
+              "size": 32768,
+              "type": "Instruction",
+              "level": 1
+            },
+            {
+              "size": 1048576,
+              "type": "Unified",
+              "level": 2
+            }
+          ],
+          "socket_id": 1
+        }
+      ],
+      "caches": null
+    }
+  ],
+  "cloud_provider": "Unknown",
+  "instance_type": "Unknown",
+  "instance_id": "None"
+}
