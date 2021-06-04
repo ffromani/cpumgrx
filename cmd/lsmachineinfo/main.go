@@ -17,7 +17,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"os"
 
@@ -25,35 +24,22 @@ import (
 
 	"k8s.io/klog/v2"
 
-	infov1 "github.com/google/cadvisor/info/v1"
-
 	"github.com/fromanirh/cpumgrx/pkg/machineinformer"
 )
 
 func main() {
-	var rootDir string
-	var rawOutput bool
+	handle := machineinformer.Handle{
+		Out: os.Stdout,
+	}
 
 	// Add klog flags
 	klog.InitFlags(flag.CommandLine)
 	// Add flags registered by imported packages
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
-	pflag.StringVarP(&rootDir, "root-dir", "r", "", "use <arg> as root prefix - use this if run inside a container")
-	pflag.BoolVarP(&rawOutput, "raw-output", "R", false, "emit full output - including machine-identifiable parts")
+	pflag.StringVarP(&handle.RootDirectory, "root-dir", "r", "", "use <arg> as root prefix - use this if run inside a container")
+	pflag.BoolVarP(&handle.RawOutput, "raw-output", "R", false, "emit full output - including machine-identifiable parts")
 	pflag.Parse()
 
-	var err error
-	var info *infov1.MachineInfo
-	if rawOutput {
-		info, err = machineinformer.GetRaw(rootDir)
-	} else {
-		info, err = machineinformer.Get(rootDir)
-	}
-
-	if err != nil {
-		klog.Fatalf("Cannot get machine info: %v")
-	}
-
-	json.NewEncoder(os.Stdout).Encode(info)
+	handle.Run()
 }

@@ -17,9 +17,35 @@
 package machineinformer
 
 import (
+	"encoding/json"
+	"io"
+
 	infov1 "github.com/google/cadvisor/info/v1"
 	"github.com/google/cadvisor/machine"
+	"k8s.io/klog/v2"
 )
+
+type Handle struct {
+	RootDirectory string
+	RawOutput     bool
+	Out           io.Writer
+}
+
+func (handle *Handle) Run() {
+	var err error
+	var info *infov1.MachineInfo
+
+	info, err = GetRaw(handle.RootDirectory)
+	if err != nil {
+		klog.Fatalf("Cannot get machine info: %v")
+	}
+
+	if !handle.RawOutput {
+		info = cleanInfo(info)
+	}
+
+	json.NewEncoder(handle.Out).Encode(info)
+}
 
 func GetRaw(root string) (*infov1.MachineInfo, error) {
 	fsInfo := newFakeFsInfo()
