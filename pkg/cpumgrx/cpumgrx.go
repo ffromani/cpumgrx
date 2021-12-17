@@ -24,7 +24,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/types"
-	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 	"k8s.io/kubernetes/pkg/kubelet/cm/containermap"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpumanager"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpuset"
@@ -121,7 +121,8 @@ func NewFromParams(params Params) (*CpuMgrx, error) {
 		Hint: params.Hint,
 	}
 
-	mgr, err := cpumanager.NewManager(params.PolicyName, reconcilePeriod, params.MachineInfo, params.ReservedCPUSet, nodeAllocatableReservation, params.StateFileDirectory, fakeTm)
+	cpuPolicyOptions := make(map[string]string)
+	mgr, err := cpumanager.NewManager(params.PolicyName, cpuPolicyOptions, reconcilePeriod, params.MachineInfo, params.ReservedCPUSet, nodeAllocatableReservation, params.StateFileDirectory, fakeTm)
 	if err != nil {
 		return nil, err
 	}
