@@ -113,6 +113,11 @@ func (cmx *CpuMgrx) Run(pod *v1.Pod) (cpuset.CPUSet, error) {
 	return cpus, nil
 }
 
+func (cmx *CpuMgrx) GetTopologyHints(pod *v1.Pod) map[string][]topologymanager.TopologyHint {
+	cnt := &pod.Spec.Containers[0]
+	return cmx.cpuMgr.GetTopologyHints(pod, cnt)
+}
+
 func NewFromParams(params Params) (*CpuMgrx, error) {
 	nodeAllocatableReservation := v1.ResourceList{
 		v1.ResourceCPU: params.ReservedCPUQty,
