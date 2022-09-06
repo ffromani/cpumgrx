@@ -19,6 +19,9 @@ package tmutils
 import (
 	"reflect"
 	"testing"
+
+	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager"
+	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager/bitmask"
 )
 
 var rawJSONHints []string = []string{
@@ -36,7 +39,7 @@ var rawGOHints []string = []string{
 	"openshift.io/intelsriov:[{10 true} {11 false}]",
 }
 
-func TestParseHints(t *testing.T) {
+func TestParseHintsCompare(t *testing.T) {
 	jsonHints, err := ParseJSONHints(rawJSONHints)
 	if err != nil {
 		t.Errorf("failed to parse hints from JSON: %v", err)
@@ -48,4 +51,56 @@ func TestParseHints(t *testing.T) {
 	if !reflect.DeepEqual(jsonHints, goHints) {
 		t.Errorf("parsed hints are different: json=%#v go=%#v", jsonHints, goHints)
 	}
+}
+
+func TestParseGoHints(t *testing.T) {
+	rawHints := []string{
+		"hugepages-2Mi:[{11 true}]",
+		"memory:[{11 true}]",
+		"cpu:[{01 true} {10 true} {11 false}]",
+	}
+	expectedHints := map[string][]topologymanager.TopologyHint{
+		"hugepages-2Mi": {
+			{
+				NUMANodeAffinity: MustNewBitMask(t, 0, 1),
+				Preferred:        true,
+			},
+		},
+		"memory": {
+			{
+				NUMANodeAffinity: MustNewBitMask(t, 0, 1),
+				Preferred:        true,
+			},
+		},
+		"cpu": {
+			{
+				NUMANodeAffinity: MustNewBitMask(t, 0),
+				Preferred:        true,
+			},
+			{
+				NUMANodeAffinity: MustNewBitMask(t, 1),
+				Preferred:        true,
+			},
+			{
+				NUMANodeAffinity: MustNewBitMask(t, 0, 1),
+				Preferred:        false,
+			},
+		},
+	}
+
+	goHints, err := ParseGOHints(rawHints)
+	if err != nil {
+		t.Errorf("failed to parse hints from GO: %v", err)
+	}
+	if !reflect.DeepEqual(goHints, expectedHints) {
+		t.Errorf("parsed hints are different: got=%#v expected=%#v", goHints, expectedHints)
+	}
+}
+
+func MustNewBitMask(t *testing.T, bits ...int) bitmask.BitMask {
+	bm, err := bitmask.NewBitMask(bits...)
+	if err != nil {
+		t.Fatalf("unexpected error in NewBitMask: %v", err)
+	}
+	return bm
 }

@@ -79,9 +79,11 @@ func ParseGOHints(rawHints []string) (map[string][]topologymanager.TopologyHint,
 		rh := ResHints{
 			Resource: strings.TrimSpace(data[0]),
 		}
-		items := strings.Split(data[1], "} ")
+		items := strings.FieldsFunc(unquoteHints(data[1]), func(r rune) bool {
+			return r == '{'
+		})
 		for _, item := range items {
-			hintData := strings.SplitN(strings.Trim(item, "{}"), " ", 2)
+			hintData := strings.SplitN(unquoteHintItem(strings.TrimSpace(item)), " ", 2)
 			rh.Hints = append(rh.Hints, Hint{
 				Mask:      hintData[0],
 				Preferred: hintData[1] == "true",
@@ -91,4 +93,16 @@ func ParseGOHints(rawHints []string) (map[string][]topologymanager.TopologyHint,
 		addHint(allHints, rh)
 	}
 	return allHints, nil
+}
+
+func unquoteHints(s string) string {
+	s = strings.TrimPrefix(s, "[")
+	s = strings.TrimSuffix(s, "]")
+	return s
+}
+
+func unquoteHintItem(s string) string {
+	s = strings.TrimPrefix(s, "{")
+	s = strings.TrimSuffix(s, "}")
+	return s
 }
