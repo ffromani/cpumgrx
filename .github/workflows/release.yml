@@ -44,6 +44,7 @@ jobs:
         make clean outdir
         for tool in cpumgrx lsmachineinfo mkcpuhints; do
           mv $tool-${{ env.RELEASE_VERSION}}-linux-amd64 _output/
+          gzip _output/$tool-${{ env.RELEASE_VERSION}}-linux-amd64
         done
 
     - name: compute signature
@@ -75,5 +76,5 @@ jobs:
     - name: create release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "SHA256SUMS,*-v*-linux-amd64"
+        artifacts: "SHA256SUMS,*-v*-linux-amd64.gz"
         token: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
