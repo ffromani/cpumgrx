@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"flag"
+
 	cadvisorapi "github.com/google/cadvisor/info/v1"
 	"github.com/spf13/pflag"
 
@@ -48,6 +49,7 @@ func main() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
 	var policyName string
+	var tmPolicyName string
 	var rawHint string
 	var rawReservedCPUs string
 	var machineInfoPath string
@@ -59,6 +61,7 @@ func main() {
 	pflag.StringVarP(&machineInfoPath, "machine-info", "M", "", "machine info path")
 	pflag.BoolVarP(&podTemplateMode, "pod-template-mode", "T", false, "pod template mode")
 	pflag.StringVarP(&policyName, "policy", "P", "static", "set CPU manager Policy")
+	pflag.StringVarP(&tmPolicyName, "tm-policy", "p", "single-numa-node", "set TM manager Policy")
 	pflag.BoolVarP(&keepState, "keep-state", "k", false, "keep the cpu_manager_state file")
 	pflag.StringVarP(&stateFileDirectory, "state-dir", "s", ".", "directory to store the cpu_manager_state_file")
 	pflag.Parse()
@@ -77,6 +80,7 @@ func main() {
 	reservedCPUSet := mustParseReservedCPUs(rawReservedCPUs)
 	params := cpumgrx.Params{
 		PolicyName:         policyName,
+		TMPolicyName:       tmPolicyName,
 		StateFileDirectory: stateFileDirectory,
 		ReservedCPUSet:     reservedCPUSet,
 		ReservedCPUQty:     resource.MustParse(fmt.Sprintf("%d", reservedCPUSet.Size())),

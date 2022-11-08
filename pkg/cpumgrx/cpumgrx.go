@@ -38,6 +38,7 @@ const (
 
 type Params struct {
 	PolicyName         string
+	TMPolicyName       string
 	Hint               topologymanager.TopologyHint
 	MachineInfo        *cadvisorapi.MachineInfo
 	ReservedCPUQty     resource.Quantity
@@ -51,16 +52,33 @@ func fakeActivePods() []*v1.Pod {
 
 type fakeRuntimeService struct{}
 
-func (rs fakeRuntimeService) UpdateContainerResources(id string, resources *runtimeapi.LinuxContainerResources) error {
+func (rs fakeRuntimeService) UpdateContainerResources(id string, resources *runtimeapi.ContainerResources) error {
 	return nil
 }
 
 type fakeTMStore struct {
-	Hint topologymanager.TopologyHint
+	PolicyName string
+	Hint       topologymanager.TopologyHint
 }
 
 func (tm fakeTMStore) GetAffinity(podUID string, containerName string) topologymanager.TopologyHint {
 	return tm.Hint
+}
+
+func (tm fakeTMStore) GetPolicy() topologymanager.Policy {
+	return fakePolicy{PolicyName: tm.PolicyName}
+}
+
+type fakePolicy struct {
+	PolicyName string
+}
+
+func (fp fakePolicy) Name() string {
+	return fp.PolicyName
+}
+
+func (fp fakePolicy) Merge(providersHints []map[string][]topologymanager.TopologyHint) (topologymanager.TopologyHint, bool) {
+	return topologymanager.TopologyHint{}, false
 }
 
 type fakeSourcesReady struct{}
@@ -123,7 +141,8 @@ func NewFromParams(params Params) (*CpuMgrx, error) {
 		v1.ResourceCPU: params.ReservedCPUQty,
 	}
 	fakeTm := fakeTMStore{
-		Hint: params.Hint,
+		Hint:       params.Hint,
+		PolicyName: params.TMPolicyName,
 	}
 
 	cpuPolicyOptions := make(map[string]string)
