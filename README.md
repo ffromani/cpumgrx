@@ -166,4 +166,4 @@ make
 ```
 
 ## see also
-similar tool to inspect topology manager behaviour: https://github.com/fromanirh/tmpolx
+similar tool to inspect topology manager behaviour: https://github.com/ffromani/tmpolx

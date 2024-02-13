@@ -24,7 +24,7 @@ import (
 
 	"k8s.io/klog/v2"
 
-	"github.com/fromanirh/cpumgrx/pkg/machineinformer"
+	"github.com/ffromani/cpumgrx/pkg/machineinformer"
 )
 
 func main() {

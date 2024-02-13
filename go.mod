@@ -1,9 +1,9 @@
-module github.com/fromanirh/cpumgrx
+module github.com/ffromani/cpumgrx
 
 go 1.18
 
 require (
-	github.com/fromanirh/cpuset v0.0.1
+	github.com/ffromani/cpuset v0.0.1
 	github.com/google/cadvisor v0.45.0
 	github.com/spf13/pflag v1.0.5
 	k8s.io/api v0.25.3

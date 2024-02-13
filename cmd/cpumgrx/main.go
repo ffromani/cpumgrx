@@ -38,8 +38,8 @@ import (
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpuset"
 	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager"
 
-	"github.com/fromanirh/cpumgrx/pkg/cpumgrx"
-	"github.com/fromanirh/cpumgrx/pkg/tmutils"
+	"github.com/ffromani/cpumgrx/pkg/cpumgrx"
+	"github.com/ffromani/cpumgrx/pkg/tmutils"
 )
 
 func main() {

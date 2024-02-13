@@ -102,9 +102,9 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/euank/go-kmsg-parser v2.0.0+incompatible/go.mod h1:MhmAMZ8V4CYH4ybgdRwPr2TU5ThnS43puaKEMpja1uw=
 github.com/evanphx/json-patch v4.12.0+incompatible h1:4onqiflcdA9EOZ4RxV643DvftH5pOlLGNtQ5lPWQu84=
 github.com/evanphx/json-patch v4.12.0+incompatible/go.mod h1:50XU6AFN0ol/bzJsmQLiYLvXMP4fmwYFNcr97nuDLSk=
+github.com/ffromani/cpuset v0.0.1 h1:V5cnpbIWRkV+AilxCqKt/ZhW8VIWP6gV3XVU/rnhsgY=
+github.com/ffromani/cpuset v0.0.1/go.mod h1:r6rxElef84cGyCmP/JLV7Jems6LaGIK4bth2zG2eNQU=
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
-github.com/fromanirh/cpuset v0.0.1 h1:WmCseohxvFRTuizpLczA/pjw0sGf4QD+AxcDoKtKySM=
-github.com/fromanirh/cpuset v0.0.1/go.mod h1:9lEAgXAusbccWNAvnt81P76p0g+dCgm1AR91DlpDgy0=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=

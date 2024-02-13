@@ -34,9 +34,9 @@ github.com/emicklei/go-restful/v3/log
 # github.com/evanphx/json-patch v4.12.0+incompatible
 ## explicit
 github.com/evanphx/json-patch
-# github.com/fromanirh/cpuset v0.0.1
+# github.com/ffromani/cpuset v0.0.1
 ## explicit
-github.com/fromanirh/cpuset
+github.com/ffromani/cpuset
 # github.com/fsnotify/fsnotify v1.4.9
 ## explicit; go 1.13
 github.com/fsnotify/fsnotify

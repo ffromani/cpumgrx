@@ -30,7 +30,7 @@ import (
 
 	"github.com/google/cadvisor/utils/sysfs"
 
-	"github.com/fromanirh/cpuset"
+	"github.com/ffromani/cpuset"
 )
 
 const (
