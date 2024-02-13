@@ -19,7 +19,6 @@ package machineinformer
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -97,7 +96,7 @@ func (fs *relocatableSysFs) GetCoreID(cpuPath string) (string, error) {
 	// is expected to be used with `cpuPath` as returned by
 	// GetCPUsPaths
 	coreIDFilePath := filepath.Join(cpuPath, coreIDFilePath)
-	coreID, err := ioutil.ReadFile(coreIDFilePath)
+	coreID, err := os.ReadFile(coreIDFilePath)
 	if err != nil {
 		return "", err
 	}
@@ -109,7 +108,7 @@ func (fs *relocatableSysFs) GetCPUPhysicalPackageID(cpuPath string) (string, err
 	// is expected to be used with `cpuPath` as returned by
 	// GetCPUsPaths
 	packageIDFilePath := filepath.Join(cpuPath, packageIDFilePath)
-	packageID, err := ioutil.ReadFile(packageIDFilePath)
+	packageID, err := os.ReadFile(packageIDFilePath)
 	if err != nil {
 		return "", err
 	}
@@ -118,7 +117,7 @@ func (fs *relocatableSysFs) GetCPUPhysicalPackageID(cpuPath string) (string, err
 
 func (fs *relocatableSysFs) GetMemInfo(nodePath string) (string, error) {
 	meminfoPath := filepath.Join(fs.root, nodePath, meminfoFile)
-	meminfo, err := ioutil.ReadFile(meminfoPath)
+	meminfo, err := os.ReadFile(meminfoPath)
 	if err != nil {
 		return "", err
 	}
@@ -127,20 +126,36 @@ func (fs *relocatableSysFs) GetMemInfo(nodePath string) (string, error) {
 
 func (fs *relocatableSysFs) GetDistances(nodePath string) (string, error) {
 	distancePath := filepath.Join(fs.root, nodePath, distanceFile)
-	distance, err := ioutil.ReadFile(distancePath)
+	distance, err := os.ReadFile(distancePath)
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(distance)), err
 }
 
+func (fs *relocatableSysFs) readDir(dirPath string) ([]os.FileInfo, error) {
+	var finfos []os.FileInfo
+	dents, err := os.ReadDir(filepath.Join(fs.root, dirPath))
+	if err != nil {
+		return finfos, err
+	}
+	for _, dent := range dents {
+		finfo, err := dent.Info()
+		if err != nil {
+			return finfos, err
+		}
+		finfos = append(finfos, finfo)
+	}
+	return finfos, nil
+}
+
 func (fs *relocatableSysFs) GetHugePagesInfo(hugePagesDirectory string) ([]os.FileInfo, error) {
-	return ioutil.ReadDir(filepath.Join(fs.root, hugePagesDirectory))
+	return fs.readDir(hugePagesDirectory)
 }
 
 func (fs *relocatableSysFs) GetHugePagesNr(hugepagesDirectory string, hugePageName string) (string, error) {
 	hugePageFilePath := filepath.Join(fs.root, hugepagesDirectory, hugePageName, HugePagesNrFile)
-	hugePageFile, err := ioutil.ReadFile(hugePageFilePath)
+	hugePageFile, err := os.ReadFile(hugePageFilePath)
 	if err != nil {
 		return "", err
 	}
@@ -148,11 +163,11 @@ func (fs *relocatableSysFs) GetHugePagesNr(hugepagesDirectory string, hugePageNa
 }
 
 func (fs *relocatableSysFs) GetBlockDevices() ([]os.FileInfo, error) {
-	return ioutil.ReadDir(filepath.Join(fs.root, blockDir))
+	return fs.readDir(blockDir)
 }
 
 func (fs *relocatableSysFs) GetBlockDeviceNumbers(name string) (string, error) {
-	dev, err := ioutil.ReadFile(filepath.Join(fs.root, blockDir, name, "/dev"))
+	dev, err := os.ReadFile(filepath.Join(fs.root, blockDir, name, "/dev"))
 	if err != nil {
 		return "", err
 	}
@@ -160,7 +175,7 @@ func (fs *relocatableSysFs) GetBlockDeviceNumbers(name string) (string, error) {
 }
 
 func (fs *relocatableSysFs) GetBlockDeviceScheduler(name string) (string, error) {
-	sched, err := ioutil.ReadFile(filepath.Join(fs.root, blockDir, name, "/queue/scheduler"))
+	sched, err := os.ReadFile(filepath.Join(fs.root, blockDir, name, "/queue/scheduler"))
 	if err != nil {
 		return "", err
 	}
@@ -168,7 +183,7 @@ func (fs *relocatableSysFs) GetBlockDeviceScheduler(name string) (string, error)
 }
 
 func (fs *relocatableSysFs) GetBlockDeviceSize(name string) (string, error) {
-	size, err := ioutil.ReadFile(filepath.Join(fs.root, blockDir, name, "/size"))
+	size, err := os.ReadFile(filepath.Join(fs.root, blockDir, name, "/size"))
 	if err != nil {
 		return "", err
 	}
@@ -176,7 +191,7 @@ func (fs *relocatableSysFs) GetBlockDeviceSize(name string) (string, error) {
 }
 
 func (fs *relocatableSysFs) GetNetworkDevices() ([]os.FileInfo, error) {
-	files, err := ioutil.ReadDir(filepath.Join(fs.root, netDir))
+	files, err := os.ReadDir(filepath.Join(fs.root, netDir))
 	if err != nil {
 		return nil, err
 	}
@@ -184,21 +199,23 @@ func (fs *relocatableSysFs) GetNetworkDevices() ([]os.FileInfo, error) {
 	// Filter out non-directory & non-symlink files
 	var dirs []os.FileInfo
 	for _, f := range files {
-		if f.Mode()|os.ModeSymlink != 0 {
-			f, err = os.Stat(filepath.Join(fs.root, netDir, f.Name()))
-			if err != nil {
-				continue
-			}
+		if f.Type().Type()|os.ModeSymlink != 0 {
+			continue
 		}
-		if f.IsDir() {
-			dirs = append(dirs, f)
+		if !f.IsDir() {
+			continue
 		}
+		finfo, err := f.Info()
+		if err != nil {
+			return dirs, err
+		}
+		dirs = append(dirs, finfo)
 	}
 	return dirs, nil
 }
 
 func (fs *relocatableSysFs) GetNetworkAddress(name string) (string, error) {
-	address, err := ioutil.ReadFile(filepath.Join(fs.root, netDir, name, "/address"))
+	address, err := os.ReadFile(filepath.Join(fs.root, netDir, name, "/address"))
 	if err != nil {
 		return "", err
 	}
@@ -206,7 +223,7 @@ func (fs *relocatableSysFs) GetNetworkAddress(name string) (string, error) {
 }
 
 func (fs *relocatableSysFs) GetNetworkMtu(name string) (string, error) {
-	mtu, err := ioutil.ReadFile(filepath.Join(fs.root, netDir, name, "/mtu"))
+	mtu, err := os.ReadFile(filepath.Join(fs.root, netDir, name, "/mtu"))
 	if err != nil {
 		return "", err
 	}
@@ -214,7 +231,7 @@ func (fs *relocatableSysFs) GetNetworkMtu(name string) (string, error) {
 }
 
 func (fs *relocatableSysFs) GetNetworkSpeed(name string) (string, error) {
-	speed, err := ioutil.ReadFile(filepath.Join(fs.root, netDir, name, "/speed"))
+	speed, err := os.ReadFile(filepath.Join(fs.root, netDir, name, "/speed"))
 	if err != nil {
 		return "", err
 	}
@@ -223,7 +240,7 @@ func (fs *relocatableSysFs) GetNetworkSpeed(name string) (string, error) {
 
 func (fs *relocatableSysFs) GetNetworkStatValue(dev string, stat string) (uint64, error) {
 	statPath := filepath.Join(fs.root, netDir, dev, "/statistics", stat)
-	out, err := ioutil.ReadFile(statPath)
+	out, err := os.ReadFile(statPath)
 	if err != nil {
 		return 0, fmt.Errorf("failed to read stat from %q for device %q", statPath, dev)
 	}
@@ -237,7 +254,7 @@ func (fs *relocatableSysFs) GetNetworkStatValue(dev string, stat string) (uint64
 
 func (fs *relocatableSysFs) GetCaches(id int) ([]os.FileInfo, error) {
 	cpuPath := filepath.Join(fs.root, fmt.Sprintf("%s%d/cache", cacheDir, id))
-	return ioutil.ReadDir(cpuPath)
+	return fs.readDir(cpuPath)
 }
 
 func bitCount(i uint64) (count int) {
@@ -251,7 +268,7 @@ func bitCount(i uint64) (count int) {
 }
 
 func getCPUCount(cache string) (count int, err error) {
-	out, err := ioutil.ReadFile(filepath.Join(cache, "/shared_cpu_map"))
+	out, err := os.ReadFile(filepath.Join(cache, "/shared_cpu_map"))
 	if err != nil {
 		return 0, err
 	}
@@ -269,7 +286,7 @@ func getCPUCount(cache string) (count int, err error) {
 
 func (fs *relocatableSysFs) GetCacheInfo(id int, name string) (sysfs.CacheInfo, error) {
 	cachePath := filepath.Join(fs.root, fmt.Sprintf("%s%d/cache/%s", cacheDir, id, name))
-	out, err := ioutil.ReadFile(filepath.Join(cachePath, "/size"))
+	out, err := os.ReadFile(filepath.Join(cachePath, "/size"))
 	if err != nil {
 		return sysfs.CacheInfo{}, err
 	}
@@ -280,7 +297,7 @@ func (fs *relocatableSysFs) GetCacheInfo(id int, name string) (sysfs.CacheInfo, 
 	}
 	// convert to bytes
 	size = size * 1024
-	out, err = ioutil.ReadFile(filepath.Join(cachePath, "/level"))
+	out, err = os.ReadFile(filepath.Join(cachePath, "/level"))
 	if err != nil {
 		return sysfs.CacheInfo{}, err
 	}
@@ -290,7 +307,7 @@ func (fs *relocatableSysFs) GetCacheInfo(id int, name string) (sysfs.CacheInfo, 
 		return sysfs.CacheInfo{}, err
 	}
 
-	out, err = ioutil.ReadFile(filepath.Join(cachePath, "/type"))
+	out, err = os.ReadFile(filepath.Join(cachePath, "/type"))
 	if err != nil {
 		return sysfs.CacheInfo{}, err
 	}
@@ -308,13 +325,13 @@ func (fs *relocatableSysFs) GetCacheInfo(id int, name string) (sysfs.CacheInfo, 
 }
 
 func (fs *relocatableSysFs) GetSystemUUID() (string, error) {
-	if id, err := ioutil.ReadFile(filepath.Join(fs.root, dmiDir, "id", "product_uuid")); err == nil {
+	if id, err := os.ReadFile(filepath.Join(fs.root, dmiDir, "id", "product_uuid")); err == nil {
 		return strings.TrimSpace(string(id)), nil
-	} else if id, err = ioutil.ReadFile(filepath.Join(fs.root, ppcDevTree, "system-id")); err == nil {
+	} else if id, err = os.ReadFile(filepath.Join(fs.root, ppcDevTree, "system-id")); err == nil {
 		return strings.TrimSpace(strings.TrimRight(string(id), "\000")), nil
-	} else if id, err = ioutil.ReadFile(filepath.Join(fs.root, ppcDevTree, "vm,uuid")); err == nil {
+	} else if id, err = os.ReadFile(filepath.Join(fs.root, ppcDevTree, "vm,uuid")); err == nil {
 		return strings.TrimSpace(strings.TrimRight(string(id), "\000")), nil
-	} else if id, err = ioutil.ReadFile(filepath.Join(fs.root, s390xDevTree, "machine-id")); err == nil {
+	} else if id, err = os.ReadFile(filepath.Join(fs.root, s390xDevTree, "machine-id")); err == nil {
 		return strings.TrimSpace(string(id)), nil
 	} else {
 		return "", err
@@ -365,7 +382,7 @@ func getCPUID(dir string) (uint16, error) {
 }
 
 func isCPUOnline(path string, cpuID uint16) (bool, error) {
-	fileContent, err := ioutil.ReadFile(path)
+	fileContent, err := os.ReadFile(path)
 	if err != nil {
 		return false, err
 	}
