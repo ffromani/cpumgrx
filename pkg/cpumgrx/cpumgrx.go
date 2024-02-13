@@ -17,6 +17,7 @@
 package cpumgrx
 
 import (
+	"context"
 	"time"
 
 	cadvisorapi "github.com/google/cadvisor/info/v1"
@@ -27,8 +28,8 @@ import (
 	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 	"k8s.io/kubernetes/pkg/kubelet/cm/containermap"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpumanager"
-	"k8s.io/kubernetes/pkg/kubelet/cm/cpuset"
 	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager"
+	"k8s.io/utils/cpuset"
 )
 
 const (
@@ -52,7 +53,7 @@ func fakeActivePods() []*v1.Pod {
 
 type fakeRuntimeService struct{}
 
-func (rs fakeRuntimeService) UpdateContainerResources(id string, resources *runtimeapi.ContainerResources) error {
+func (rs fakeRuntimeService) UpdateContainerResources(ctx context.Context, id string, resources *runtimeapi.ContainerResources) error {
 	return nil
 }
 

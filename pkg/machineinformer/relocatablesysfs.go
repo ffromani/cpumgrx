@@ -43,6 +43,8 @@ const (
 
 	meminfoFile = "meminfo"
 
+	distanceFile = "distance"
+
 	sysFsCPUTopology = "topology"
 
 	// CPUPhysicalPackageID is a physical package id of cpu#. Typically corresponds to a physical socket number,
@@ -121,6 +123,15 @@ func (fs *relocatableSysFs) GetMemInfo(nodePath string) (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(string(meminfo)), err
+}
+
+func (fs *relocatableSysFs) GetDistances(nodePath string) (string, error) {
+	distancePath := filepath.Join(fs.root, nodePath, distanceFile)
+	distance, err := ioutil.ReadFile(distancePath)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(distance)), err
 }
 
 func (fs *relocatableSysFs) GetHugePagesInfo(hugePagesDirectory string) ([]os.FileInfo, error) {

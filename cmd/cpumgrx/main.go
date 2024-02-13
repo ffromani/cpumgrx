@@ -35,8 +35,8 @@ import (
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpumanager/topology"
-	"k8s.io/kubernetes/pkg/kubelet/cm/cpuset"
 	"k8s.io/kubernetes/pkg/kubelet/cm/topologymanager"
+	"k8s.io/utils/cpuset"
 
 	"github.com/ffromani/cpumgrx/pkg/cpumgrx"
 	"github.com/ffromani/cpumgrx/pkg/tmutils"
@@ -134,7 +134,7 @@ func main() {
 	coreInfo := make(map[int]cpuset.CPUSet)
 	// coreID -> pod names allowed to run on that core
 	coreTenants := make(map[int][]string)
-	for _, cpuID := range reservedCPUSet.ToSlice() {
+	for _, cpuID := range reservedCPUSet.List() {
 		coreID, _ := cpuDetails.CoreSiblings(cpuID)
 		coreTenants[coreID] = []string{"reserved"}
 	}
@@ -177,7 +177,7 @@ func peek(cpus cpuset.CPUSet) (int, bool) {
 	if cpus.Size() == 0 {
 		return -1, false
 	}
-	return cpus.ToSliceNoSort()[0], true
+	return cpus.UnsortedList()[0], true
 }
 
 func partitionCPUsByCore(cpus cpuset.CPUSet, cpuDetails CPUDetails) map[int]cpuset.CPUSet {
