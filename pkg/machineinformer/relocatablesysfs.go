@@ -257,6 +257,10 @@ func (fs *relocatableSysFs) GetCaches(id int) ([]os.FileInfo, error) {
 	return fs.readDir(cpuPath)
 }
 
+func (fs *relocatableSysFs) IsBlockDeviceHidden(name string) (bool, error) {
+	return false, nil
+}
+
 func bitCount(i uint64) (count int) {
 	for i != 0 {
 		if i&1 == 1 {
