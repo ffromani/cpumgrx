@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// derived from https://github.com/google/cadvisor/blob/master/utils/sysfs/sysfs.go @ ef7e64f9
+// derived from
+//   https://github.com/google/cadvisor/blob/master/utils/sysfs/sysfs.go @ ef7e64f9
+// updated for cache info detection from
+//   https://github.com/google/cadvisor/blob/master/utils/sysfs/sysfs.go @ v0.49.1
 // as Apache 2.0 license allows.
 
 package machineinformer
@@ -63,7 +66,9 @@ const (
 
 	//HugePagesNrFile name of nr_hugepages file in sysfs
 	HugePagesNrFile = "nr_hugepages"
+)
 
+var (
 	nodeDir = "/sys/devices/system/node/"
 )
 
@@ -261,6 +266,18 @@ func (fs *relocatableSysFs) IsBlockDeviceHidden(name string) (bool, error) {
 	return false, nil
 }
 
+func toFileInfo(dirs []os.DirEntry) ([]os.FileInfo, error) {
+	info := []os.FileInfo{}
+	for _, dir := range dirs {
+		fI, err := dir.Info()
+		if err != nil {
+			return nil, err
+		}
+		info = append(info, fI)
+	}
+	return info, nil
+}
+
 func bitCount(i uint64) (count int) {
 	for i != 0 {
 		if i&1 == 1 {
@@ -288,14 +305,24 @@ func getCPUCount(cache string) (count int, err error) {
 	return
 }
 
-func (fs *relocatableSysFs) GetCacheInfo(id int, name string) (sysfs.CacheInfo, error) {
-	cachePath := filepath.Join(fs.root, fmt.Sprintf("%s%d/cache/%s", cacheDir, id, name))
-	out, err := os.ReadFile(filepath.Join(cachePath, "/size"))
+func (fs *relocatableSysFs) GetCacheInfo(cpu int, name string) (sysfs.CacheInfo, error) {
+	cachePath := filepath.Join(fs.root, fmt.Sprintf("%s%d/cache/%s", cacheDir, cpu, name))
+	out, err := os.ReadFile(filepath.Join(cachePath, "/id"))
+	if err != nil {
+		return sysfs.CacheInfo{}, err
+	}
+	var id int
+	n, err := fmt.Sscanf(string(out), "%d", &id)
+	if err != nil || n != 1 {
+		return sysfs.CacheInfo{}, err
+	}
+
+	out, err = os.ReadFile(filepath.Join(cachePath, "/size"))
 	if err != nil {
 		return sysfs.CacheInfo{}, err
 	}
 	var size uint64
-	n, err := fmt.Sscanf(string(out), "%dK", &size)
+	n, err = fmt.Sscanf(string(out), "%dK", &size)
 	if err != nil || n != 1 {
 		return sysfs.CacheInfo{}, err
 	}
@@ -321,6 +348,7 @@ func (fs *relocatableSysFs) GetCacheInfo(id int, name string) (sysfs.CacheInfo, 
 		return sysfs.CacheInfo{}, err
 	}
 	return sysfs.CacheInfo{
+		Id:    id,
 		Size:  size,
 		Level: level,
 		Type:  cacheType,
