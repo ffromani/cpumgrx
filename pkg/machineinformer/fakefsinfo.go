@@ -22,44 +22,46 @@ import (
 	"github.com/google/cadvisor/fs"
 )
 
+var (
+	errNotImplemented = fmt.Errorf("not implemented")
+)
+
 type fakeFsInfo struct {
-	notImplemented error
+	Err error
 }
 
 func newFakeFsInfo() fs.FsInfo {
-	return fakeFsInfo{
-		notImplemented: fmt.Errorf("not implemented"),
-	}
+	return fakeFsInfo{}
 }
 
 func (ffi fakeFsInfo) GetGlobalFsInfo() ([]fs.Fs, error) {
-	return nil, ffi.notImplemented
+	return []fs.Fs{}, ffi.Err
 }
 
 func (ffi fakeFsInfo) GetFsInfoForPath(mountSet map[string]struct{}) ([]fs.Fs, error) {
-	return nil, ffi.notImplemented
+	return []fs.Fs{}, ffi.Err
 }
 
 func (ffi fakeFsInfo) GetDirUsage(dir string) (fs.UsageInfo, error) {
-	return fs.UsageInfo{}, ffi.notImplemented
+	return fs.UsageInfo{}, ffi.Err
 }
 
 func (ffi fakeFsInfo) GetDeviceInfoByFsUUID(uuid string) (*fs.DeviceInfo, error) {
-	return nil, ffi.notImplemented
+	return &fs.DeviceInfo{}, ffi.Err
 }
 
 func (ffi fakeFsInfo) GetDirFsDevice(dir string) (*fs.DeviceInfo, error) {
-	return nil, ffi.notImplemented
+	return &fs.DeviceInfo{}, ffi.Err
 }
 
 func (ffi fakeFsInfo) GetDeviceForLabel(label string) (string, error) {
-	return "", ffi.notImplemented
+	return "", ffi.Err
 }
 
 func (ffi fakeFsInfo) GetLabelsForDevice(device string) ([]string, error) {
-	return nil, ffi.notImplemented
+	return []string{}, ffi.Err
 }
 
 func (ffi fakeFsInfo) GetMountpointForDevice(device string) (string, error) {
-	return "", ffi.notImplemented
+	return "", ffi.Err
 }
