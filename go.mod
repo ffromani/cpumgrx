@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/ffromani/cpuset v0.0.1
-	github.com/google/cadvisor v0.49.1
+	github.com/google/cadvisor v0.49.0
 	github.com/spf13/pflag v1.0.5
 	k8s.io/api v0.28.4
 	k8s.io/apimachinery v0.28.4

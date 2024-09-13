@@ -91,7 +91,7 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
-# github.com/google/cadvisor v0.49.1
+# github.com/google/cadvisor v0.49.0
 ## explicit; go 1.19
 github.com/google/cadvisor/devicemapper
 github.com/google/cadvisor/fs
