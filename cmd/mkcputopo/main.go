@@ -27,7 +27,8 @@ import (
 	"github.com/spf13/pflag"
 
 	"k8s.io/klog/v2"
-	"k8s.io/kubernetes/pkg/kubelet/cm/cpumanager/topology"
+
+	"github.com/ffromani/cpumgrx/internal/k8simported/topology"
 )
 
 func main() {
